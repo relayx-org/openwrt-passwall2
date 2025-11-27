@@ -101,12 +101,6 @@ table td, .table .td {
 
 	function cbi_t_switch(section, tab) {
 		if( cbi_t[section] && cbi_t[section][tab] ) {
-			// Before switching tabs, first deselect all currently active tabs.
-			var btn = document.getElementById("select_all_btn");
-			if (btn) {
-				dechecked_all_node(btn);
-			}
-
 			var o = cbi_t[section][tab];
 			var h = document.getElementById('tab.' + section);
 			for( var tid in cbi_t[section] ) {
@@ -131,10 +125,6 @@ table td, .table .td {
 		if (typeof(cbi_t_switch) === "function") {
 			var old_switch = cbi_t_switch;
 			cbi_t_switch = function(section, tab) {
-				var btn = document.getElementById("select_all_btn");
-				if (btn) {
-					dechecked_all_node(btn);
-				}
 				return old_switch(section, tab);
 			};
 		}
@@ -199,19 +189,6 @@ table td, .table .td {
 		}
 	}
 	
-	function to_add_node() {
-		const dom = document.getElementsByClassName("cbi-tab")[0];
-		const current_group = dom.getAttribute("group_name")
-		window.location.href='<%=api.url("add_node")%>?redirect=1&group=' + current_group;
-	}
-	
-	function copy_node(cbi_id) {
-		window.location.href = '<%=api.url("copy_node")%>' + "?section=" + cbi_id;
-	}
-	
-	function del_node(cbi_id) {
-		window.location.href = '<%=api.url("delete_select_nodes")%>' + "?redirect=1&ids=" + cbi_id;
-	}
 	
 	var section = "";
 	function open_set_node_div(cbi_id) {
@@ -226,85 +203,6 @@ table td, .table .td {
 		document.getElementById("set_node_name").innerHTML = "";
 	}
 	
-	function _cbi_row_top(id) {
-		//It has been damaged and awaits repair or other solutions.
-		var dom = document.getElementById("cbi-passwall2-" + id);
-		if (dom) {
-			var trs = document.getElementById("cbi-passwall2-nodes").getElementsByClassName("cbi-section-table-row");
-			if (trs && trs.length > 0) {
-				for (var i = 0; i < trs.length; i++) {
-					var up = dom.getElementsByClassName("cbi-button-up");
-					if (up) {
-						cbi_row_swap(up[0], true, 'cbi.sts.passwall2.nodes');
-					}
-				}
-			}
-		}
-	}
-	
-	function checked_all_node(btn) {
-		var visibleContainer = document.querySelector('#cbi-passwall2-nodes > .cbi-tabcontainer[style*="display:block"], #cbi-passwall2-nodes > .cbi-tabcontainer[style*="display: block"]');
-		if (!visibleContainer) return;
-		var doms = visibleContainer.getElementsByClassName("nodes_select");
-		if (doms && doms.length > 0) {
-			for (var i = 0 ; i < doms.length; i++) {
-				doms[i].checked = true;
-			}
-			btn.value = "<%:DeSelect all%>";
-			btn.setAttribute("onclick", "dechecked_all_node(this)");
-		}
-	}
-	
-	function dechecked_all_node(btn) {
-		var visibleContainer = document.querySelector('#cbi-passwall2-nodes > .cbi-tabcontainer[style*="display:block"], #cbi-passwall2-nodes > .cbi-tabcontainer[style*="display: block"]');
-		if (!visibleContainer) return;
-		var doms = visibleContainer.getElementsByClassName("nodes_select");
-		if (doms && doms.length > 0) {
-			for (var i = 0 ; i < doms.length; i++) {
-				doms[i].checked = false;
-			}
-			btn.value = "<%:Select all%>";
-			btn.setAttribute("onclick", "checked_all_node(this)");
-		}
-	}
-	
-	function delete_select_nodes() {
-		var ids = [];
-		var visibleContainer = document.querySelector('#cbi-passwall2-nodes > .cbi-tabcontainer[style*="display:block"], #cbi-passwall2-nodes > .cbi-tabcontainer[style*="display: block"]');
-		if (!visibleContainer) return;
-		var doms = visibleContainer.getElementsByClassName("nodes_select");
-		if (doms && doms.length > 0) {
-			for (var i = 0 ; i < doms.length; i++) {
-				if (doms[i].checked) {
-					ids.push(doms[i].getAttribute("cbid"))
-				}
-			}
-			if (ids.length > 0) {
-				if (confirm('<%:Are you sure to delete select nodes?%>') == true){
-					XHR.get('<%=api.url("delete_select_nodes")%>', {
-						ids: ids.join()
-					},
-					function(x, data) {
-						if (x && x.status == 200) {
-							/*
-							for (var i = 0 ; i < ids.length; i++) {
-								var box = document.getElementById("cbi-passwall2-" + ids[i]);
-								box.remove();
-							}
-							*/
-							window.location.href = '<%=api.url("node_list")%>';
-						}
-						else {
-							alert("<%:Error%>");
-						}
-					});
-				}
-			}
-		}
-		if (ids.length <= 0) {
-			alert("<%:You no select nodes !%>");
-		}
-	}
 	
 	function set_node(type, config) {
 		if (confirm('<%:Are you sure set this server?%>')==true){
@@ -520,9 +418,6 @@ table td, .table .td {
 			</tr>
 			{{node-tr}}
 		</table>
-		<div class="cbi-section-create cbi-tblsection-create">
-			<input class="cbi-button cbi-button-add" type="button" value="<%:Add%>" onclick="to_add_node()">
-		</div>
 	</fieldset>
 </script>
 
@@ -537,13 +432,7 @@ table td, .table .td {
 		<td class="td cbi-value-field">{{url_test}}</td>
 		<td class="td cbi-section-table-cell nowrap cbi-section-actions">
 			<div class="node-wrapper">
-				<!--It has been damaged and awaits repair or other solutions.-->
-				<!--<input class="btn cbi-button" type="button" value="<%:To Top%>" onclick="_cbi_row_top('{{id}}')"/>-->
-				<input class="cbi-input-checkbox nodes_select" type="checkbox" cbid="{{id}}" />
 				<input class="btn cbi-button cbi-button-apply" type="button" value="<%:Use%>" id="apply_{{id}}" onclick="open_set_node_div('{{id}}')"/>
-				<input class="btn cbi-button cbi-button-add" type="button" value="<%:Copy%>" onclick="copy_node('{{id}}')"/>
-				<input class="btn cbi-button cbi-button-edit" type="button" value="<%:Edit%>" onclick="location.href='<%=api.url("node_config")%>/{{id}}'" alt="<%:Edit%>" title="<%:Edit%>">
-				<input class="btn cbi-button cbi-button-remove" type="button" value="<%:Delete%>" onclick="del_node('{{id}}')" alt="<%:Delete%>" title="<%:Delete%>">
 			</div>
 		</td>
 	</tr>
