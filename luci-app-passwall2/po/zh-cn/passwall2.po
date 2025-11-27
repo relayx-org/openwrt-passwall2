@@ -2247,3 +2247,6 @@ msgstr "发生错误, 正在恢复服务。"
 
 msgid "Subscription complete..."
 msgstr "订阅完毕..."
+
+msgid "Only subscriptions from https://iping.my are allowed."
+msgstr "只允许来自 https://iping.my 的订阅。"
